@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# http://wiki.xbmc.org/index.php?title=Userdata/advancedsettings.xml#.3Cgputempcommand.3E
+
+# Supported: celsius || fahrenheit
+unit="celsius"
+
+# Supported: nvidia-smi
+utility="nvidia-smi"
+
+
+_checkDependencies()
+{
+    command -v "$utility" 2&>/dev/null || {
+        printf "%s\n\n%s\n\n" "«${utility}» not found." "Quitting."
+        exit 1
+    }
+}
+
+_getGpuTemp()
+{
+    local -i probe_gpu_data
+    local probe_gpu_temp
+
+    probe_gpu_data=$( "$utility" --query-gpu=temperature.gpu --format=csv,noheader )
+
+    case "$unit" in
+        celsius )
+            probe_gpu_temp="${probe_gpu_data} C"
+        ;;
+
+        fahrenheit )
+            probe_gpu_temp="$( echo $probe_gpu_data | awk '{print $1 * 1.8 + 32}') F"
+        ;;
+
+        * )
+            printf "%s\n\n%s\n\n" "Unknown unit: ${unit}" "Quitting!"
+            exit 1
+        ;;
+    esac
+
+    printf "%s\n" "${probe_gpu_temp}"
+}
+
+{
+    _checkDependencies
+    _getGpuTemp
+}
+
+exit 0

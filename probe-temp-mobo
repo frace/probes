@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+probes=(
+    "/sys/class/hwmon/hwmon0/temp1_input"
+)
+
+# Supported: celsius || fahrenheit
+unit="celsius"
+
+
+_checkProbes()
+{
+    local probe
+
+    for probe in "${probes[@]}"; do
+        if [[ ! -f "$probe" ]]; then
+            printf "%s\n\n%s\n\n" "Probe «${probe}» not found." "Quitting."
+            exit 1
+        fi
+    done
+}
+
+_getBoardTemp()
+{
+    local probe
+    local -i probe_board_raw
+    local -i probe_board_data
+    local -i probe_count
+    local probe_board_temp
+
+    for probe in "${probes[@]}"; do
+        read -r probe_board_raw < "$probe"
+        (( probe_board_data+=$probe_board_raw / 1000 ))
+    done
+
+    probe_count=${#probes[@]}
+    case "$unit" in
+        celsius )
+            probe_board_temp="$(( $probe_board_data / $probe_count )) C"
+        ;;
+
+        fahrenheit )
+            probe_board_temp="$( echo $probe_board_data | awk '{print $1 * 1.8 + 32}') F"
+        ;;
+
+        * )
+            printf "%s\n\n%s\n\n" "Unknown unit: ${unit}" "Quitting!"
+            exit 1
+        ;;
+    esac
+
+    printf "%s\n" "${probe_board_temp}"
+}
+
+{
+    _checkProbes
+    _getBoardTemp
+}
+
+exit 0

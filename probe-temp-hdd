@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+# Devices to probe
+# ( "sda" "sdb" "sdc" )
+probes=(
+    "sdb"
+)
+
+# Supported: smartctl || udisks || skdump
+utility="smartctl"
+
+# Supported: celsius || fahrenheit
+unit="celsius"
+
+
+_checkProbes()
+{
+    local probe
+
+    for probe in "${probes[@]}"; do
+
+        if [[ ! -e "/dev/${probe}" ]]; then
+            printf "%s\n\n%s\n\n" "Device «${probe}» not found." "Quitting!"
+            exit 1
+        fi
+
+    done
+}
+
+_checkDependencies()
+{
+    command -v "$utility" 2&>/dev/null || {
+        printf "%s\n\n%s\n\n" "«${utility}» not found." "Quitting."
+        exit 1
+    }
+}
+
+_getHddTemp()
+{
+    local probe
+    local -i probe_hdd_data
+    local probe_hdd_temp
+
+    for probe in "${probes[@]}"; do
+
+        case "$utility" in
+            udisks )
+                probe_hdd_data=$( "$utility" --show-info "/dev/${probe}" | awk '/temperature-celsius-2/ {print substr($5,0,length($5)-1)}' )
+            ;;
+
+            smartctl )
+                probe_hdd_data=$( "$utility" --log=scttempsts "/dev/${probe}" | awk '/Current Temperature/ {print $3}' )
+            ;;
+
+            skdump )
+                probe_hdd_data=$( "$utility" --temperature "/dev/${probe}" 2>/dev/null | awk '{print $1 / 1000 - 273.15}' )
+            ;;
+
+            * )
+                printf "%s\n\n%s\n\n" "«${utility}» not found." "Quitting!"
+                exit 1
+            ;;
+        esac
+
+        if (( "$probe_hdd_data" == 0 )); then
+            probe_hdd_temp="N/A"
+        else
+            case "$unit" in
+                celsius )
+                    probe_hdd_temp="${probe_hdd_data} C"
+                ;;
+
+                fahrenheit )
+                    probe_hdd_temp="$( echo $probe_hdd_data | awk '{print $1 * 1.8 + 32}') F"
+                ;;
+
+                * )
+                    printf "%s\n\n%s\n\n" "Unknown unit: ${unit}" "Quitting!"
+                    exit 1
+                ;;
+            esac
+        fi
+
+        printf "%s\n" "/dev/${probe}: ${probe_hdd_temp}"
+
+    done
+}
+
+{
+    _checkProbes
+    _checkDependencies
+    _getHddTemp
+}
+
+exit 0

@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# http://wiki.xbmc.org/index.php?title=Userdata/advancedsettings.xml#.3Ccputempcommand.3E
+
+probes=(
+    "/sys/devices/platform/coretemp.0/temp2_input"
+    "/sys/devices/platform/coretemp.0/temp3_input"
+)
+
+# Supported: celsius || fahrenheit
+unit="celsius"
+
+_checkProbes()
+{
+    local probe
+
+    for probe in "${probes[@]}"; do
+        if [[ ! -f "$probe" ]]; then
+            printf "%s\n\n%s\n\n" "Probe «${probe}» not found." "Quitting."
+            exit 1
+        fi
+    done
+}
+
+_getCpuTemp()
+{
+    local probe
+    local -i probe_cpu_raw
+    local -i probe_cpu_data
+    local -i probe_count
+    local probe_cpu_temp
+
+    for probe in "${probes[@]}"; do
+        read -r probe_cpu_raw < "$probe"
+        (( probe_cpu_data+=$probe_cpu_raw / 1000 ))
+    done
+
+    probe_count=${#probes[@]}
+    case "$unit" in
+        celsius )
+            probe_cpu_temp="$(( $probe_cpu_data / $probe_count )) C"
+        ;;
+
+        fahrenheit )
+            probe_cpu_temp="$( echo $(($probe_cpu_data / $probe_count)) | awk '{print $1 * 1.8 + 32}') F"
+        ;;
+
+        * )
+            printf "%s\n\n%s\n\n" "Unknown unit: ${unit}" "Quitting!"
+            exit 1
+        ;;
+    esac
+
+    printf "%s\n" "${probe_cpu_temp}"
+}
+
+{
+    _checkProbes
+    _getCpuTemp
+}
+
+exit 0
