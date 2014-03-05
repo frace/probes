@@ -7,6 +7,13 @@ _installSymlinks()
 {
     local path_source="$( cd $(dirname $0) ; pwd -P )"
 
+    if [[ -d "$path_target" ]]; then
+        printf "%s\n" "Directory exists: «${path_target}»"
+    else
+        mkdir -p "$path_target"
+        printf "%s\n" "Directory created: «${path_target}»"
+    fi
+
     for probe in probe-*; do
         if [[ -h "${path_target}/${probe}" ]]; then
             printf "%s\n" "Symlink exists: «${path_target}/${probe}»"
