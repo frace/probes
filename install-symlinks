@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+path_target="/usr/local/bin"
+
+
+_installSymlinks()
+{
+    local path_source="$( cd $(dirname $0) ; pwd -P )"
+
+    for probe in probe-*; do
+        if [[ -h "${path_target}/${probe}" ]]; then
+            printf "%s\n" "Symlink exists: «${path_target}/${probe}»"
+        else
+            ln -s "${path_source}/${probe}" "${path_target}/"
+            printf "%s\n" "Symlink created: «${path_target}/${probe}»"
+        fi
+    done
+}
+
+{
+    _installSymlinks
+}
+
+exit 0
