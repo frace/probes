@@ -10,7 +10,10 @@ _installSymlinks()
     if [[ -d "$path_target" ]]; then
         printf "%s\n" "Directory exists: «${path_target}»"
     else
-        mkdir -p "$path_target"
+        mkdir -p "$path_target" || {
+            printf "%s\n\n%s\n" "An error occurred while trying creating «${path_target}»" "Quitting."
+            exit 1
+        }
         printf "%s\n" "Directory created: «${path_target}»"
     fi
 
@@ -18,14 +21,20 @@ _installSymlinks()
         if [[ -h "${path_target}/${probe}" ]]; then
             printf "%s\n" "Symlink exists: «${path_target}/${probe}»"
         else
-            ln -s "${path_source}/${probe}" "${path_target}/"
+            ln -s "${path_source}/${probe}" "${path_target}/" || {
+                printf "%s\n\n%s\n" "An error occurred while symlinking «${path_target}/${probe}»" "Quitting."
+                exit 1
+            }
             printf "%s\n" "Symlink created: «${path_target}/${probe}»"
         fi
     done
 }
 
 {
-    _installSymlinks
+    _installSymlinks || {
+        printf "%s\n\n%s\n" "An unknown error occurred." "Quitting."
+        exit 1
+    }
 }
 
 exit 0
