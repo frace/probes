@@ -28,6 +28,8 @@ _installSymlinks()
             printf "%s\n" "Symlink created: «${path_target}/${probe}»"
         fi
     done
+
+    return 0
 }
 
 {
