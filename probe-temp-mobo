@@ -18,6 +18,8 @@ _checkProbes()
             exit 1
         fi
     done
+
+    return 0
 }
 
 _getBoardTemp()
@@ -50,6 +52,8 @@ _getBoardTemp()
     esac
 
     printf "%s\n" "${probe_board_temp}"
+
+    return 0
 }
 
 {

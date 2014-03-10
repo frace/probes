@@ -25,6 +25,8 @@ _checkProbes()
         fi
 
     done
+
+    return 0
 }
 
 _checkDependencies()
@@ -33,6 +35,8 @@ _checkDependencies()
         printf "%s\n\n%s\n\n" "«${utility}» not found." "Quitting."
         exit 1
     }
+
+    return 0
 }
 
 _getHddTemp()
@@ -84,6 +88,8 @@ _getHddTemp()
         printf "%s\n" "/dev/${probe}: ${probe_hdd_temp}"
 
     done
+
+    return 0
 }
 
 {

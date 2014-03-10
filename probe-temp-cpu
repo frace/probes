@@ -19,6 +19,8 @@ _checkProbes()
             exit 1
         fi
     done
+
+    return 0
 }
 
 _getCpuTemp()
@@ -51,6 +53,8 @@ _getCpuTemp()
     esac
 
     printf "%s\n" "${probe_cpu_temp}"
+
+    return 0
 }
 
 {

@@ -14,6 +14,8 @@ _checkDependencies()
         printf "%s\n\n%s\n\n" "«${utility}» not found." "Quitting."
         exit 1
     }
+
+    return 0
 }
 
 _getGpuTemp()
@@ -39,6 +41,8 @@ _getGpuTemp()
     esac
 
     printf "%s\n" "${probe_gpu_temp}"
+
+    return 0
 }
 
 {
