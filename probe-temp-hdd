@@ -6,7 +6,7 @@ probes=(
     "sdb"
 )
 
-# Supported: smartctl || udisks || skdump
+# Supported: hddtemp || smartctl || udisks || skdump
 utility="smartctl"
 
 # Supported: celsius || fahrenheit
@@ -48,6 +48,10 @@ _getHddTemp()
     for probe in "${probes[@]}"; do
 
         case "$utility" in
+            hddtemp )
+                probe_hdd_data=$( "$utility" --numeric --quiet "/dev/${probe}" )
+            ;;
+
             udisks )
                 probe_hdd_data=$( "$utility" --show-info "/dev/${probe}" | awk '/temperature-celsius-2/ {print substr($5,0,length($5)-1)}' )
             ;;

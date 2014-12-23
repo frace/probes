@@ -2,8 +2,8 @@
 # http://wiki.xbmc.org/index.php?title=Userdata/advancedsettings.xml#.3Ccputempcommand.3E
 
 probes=(
-    "/sys/devices/platform/coretemp.0/temp2_input"
-    "/sys/devices/platform/coretemp.0/temp3_input"
+    "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input"
+    "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp3_input"
 )
 
 # Supported: celsius || fahrenheit
